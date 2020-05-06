@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Main Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.85">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+
+<body ng-app="MainPage">
+    <div class="container" ng-controller="MainPageController">
+        <div class="col-md-8 offset-md-2">
+            <h2 id="page-title">Blockchain</h1>
+        </div>
+
+        <div ng-init='getBlockchainJson()'>
+
+            <table class="table table-condensed table-hover" ng-if="chain">
+                <tbody ng-repeat="i in chain">
+
+                    <tr>
+                        <td class="bold">Index</td>
+                        <td>{{ i.index }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="bold">Hash</td>
+                        <td>{{ i.hash }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="bold">Merkle Root</td>
+                        <td>{{ i.merkleRoot }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="bold">Nonce</td>
+                        <td>{{ i.nonce }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="bold">Previous Block Hash</td>
+                        <td>{{ i.previousBlockHash }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="bold">Timestamp</td>
+                        <td>{{ i.timestamp }}</td>
+                    </tr>
+
+                    <tr>
+                        <td class="bold">Transactions</td>
+                        <td><button type="button" ng-click="expanded = !expanded"> Show Transactions
+                            </button></td>
+                    </tr>
+
+
+
+                    <tr style="background-color: white" ng-repeat-end ng-show="expanded">
+                        <td></td>
+
+                        <td colspan="3">
+                            <ul>
+                                <li ng-repeat="transaction in i.transactions">
+
+                                    <table>
+                                        <tr>
+                                            <td>Temperature</td>
+                                            <td>{{transaction.temperature}}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Humidity</td>
+                                            <td>{{transaction.humidity}}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Sender</td>
+                                            <td>{{transaction.sender}}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Recipient</td>
+                                            <td>{{transaction.recipient}}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Timestamp</td>
+                                            <td>{{transaction.timestamp}}</td>
+                                        </tr>
+
+                                        <tr>
+                                            <td>Transaction Id</td>
+                                            <td>{{transaction.transactionId}}</td>
+                                        </tr>
+
+                                        <tr style="background-color: rgb(248, 246, 233)">
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </table>
+                                </li>
+                            </ul>
+                        </td>
+
+                    </tr>
+
+                    <tr style="background-color: lavender">
+                        <td></td>
+                        <td></td>
+                    </tr>
+
+
+                    </tr>
+                </tbody>
+            </table>
+
+
+
+
+        </div>
+
+        <!--
+            humidity: 10
+            recipient: "4dc305f0726911e9a08db9c923137624"
+            sender: "00"
+            temperature: 10
+            timestamp: 1557413930704
+            transactionId: "f4955d00726a11e9a08db9c923137624"
+        -->
+
+
+
+
+
+    </div>
+
+    <script>
+        window.app = angular.module('MainPage', []);
+        app.controller('MainPageController', function ($scope, $http) {
+            $scope.blockchain = null;
+            $scope.chain = null;
+            $scope.transactions = null;
+            $scope.pendingTransactions = null;
+            $scope.showTransac = false;
+            $scope.currentBlockIndex = 1;
+
+            $scope.getBlockchainJson = function () {
+                $http.get('/chain')
+                    .then(response => {
+                        $scope.blockchain = response.data;
+                        $scope.chain = response.data.chain;
+                    });
+            };
+
+            //$scope.pendingTransactions = element.pendingTransactions;
+
+            $scope.showTransactions = function (param) {
+                console.log(param);
+                $scope.chain.forEach(element => {
+                    $scope.transactions = element.transactions;
+                    $scope.showTransac = !$scope.showTransac;
+                });
+            }
+
+        });
+
+    </script>
+
+    <style type="text/css">
+        html,
+        body {
+            min-height: 100vh;
+            background-image: linear-gradient(to bottom right, whitesmoke, blue);
+        }
+
+        .container {
+            padding-top: 50px;
+            padding-bottom: 50px;
+        }
+
+        .Row {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            border-spacing: 10px;
+        }
+
+        .Column {
+            display: table-cell;
+            background-color: rgb(227, 252, 117);
+        }
+
+        #page-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .table-title {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .table {
+            background-color: #ffffff;
+            box-shadow: 2px 2px 15px -3px rgba(0, 0, 0, 0.75);
+        }
+
+        .margin-auto {
+            margin: auto;
+            display: block;
+        }
+
+        .btn-search {
+            margin-bottom: 50px;
+        }
+
+        .bold {
+            font-weight: 700;
+        }
+
+        .no-data-text {
+            color: red;
+            text-align: center;
+        }
+
+        .data-text {
+            color: green;
+            text-align: center;
+        }
+    </style>
+
+</body>
+
+</html>

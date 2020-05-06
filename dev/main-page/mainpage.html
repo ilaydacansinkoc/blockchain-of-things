@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Main Page</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"
+        integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+</head>
+
+<body ng-app="MainPage">
+    <div class="container" ng-controller="MainPageController">
+        <div class="col-md-8 offset-md-2">
+            <h2 id="page-title">Control Page</h1>
+        </div>
+
+        <div class="Row">
+            <div class="Column">
+                <!--Mine Block-->
+
+                <div class="col-md-6 offset-md-3 mt-3">
+                    <button ng-click='mine()' class="btn btn-success margin-auto">Mine Block</button>
+                    <p ng-if="!block && !noteForMining" class="no-data-text mt-3">
+                        There is no mined block yet.
+                    </p>
+                </div>
+
+                <div class="col-md-10 offset-md-1 mt-3">
+
+                    <h6 class="data-text" ng-if="noteForMining">{{noteForMining}}</h6>
+
+                    <!-- 'display block' table -->
+                    <h3 class="table-title" ng-if="block">Block</h3>
+                    <table class="table table-striped" ng-if="block">
+                        <tbody>
+                            <tr>
+                                <td class="bold">Block Hash</td>
+                                <td>{{ block.hash }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Index</td>
+                                <td>{{ block.index }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Time Stamp</td>
+                                <td>{{ block.timestamp }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Nonce</td>
+                                <td>{{ block.nonce }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Previous Hash</td>
+                                <td>{{ block.previousBlockHash }}</td>
+                            </tr>
+                            <tr>
+                                <td class="bold">Number Transactions</td>
+                                <td>{{ block.transactions.length }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="Row">
+            <div class="Column">
+                <!--Enter transactions manualy-->
+                <div class="col-md-10 offset-md-1 mt-3">
+                    <form ng-submit="transactionBroadcast(data)">
+                        <div class="form-group">
+                            <input type="number" number-converter id="temperature" placeholder="Temperature"
+                                class="form-control" ng-model="data.temperature">
+                            <input type="number" number-converter id="humidity" placeholder="Humidity"
+                                class="form-control" ng-model="data.humidity">
+                            <input id="sender" placeholder="Sender" class="form-control" ng-model="data.sender">
+                            <input id="recipient" placeholder="Recipient" class="form-control"
+                                ng-model="data.recipient">
+                        </div>
+                        <button type="submit" class="btn btn-success margin-auto">Enter Transaction
+                            Manually</button>
+                        <p ng-if="!noteForTransaction" class="no-data-text mt-3">
+                            No transactions submitted yet.
+                        </p>
+                    </form>
+
+                    <h6 class="data-text mt-3" ng-if="noteForTransaction">{{noteForTransaction}}</h6>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.app = angular.module('MainPage', []);
+        debugger;
+        app.controller('MainPageController', function ($scope, $http) {
+            $scope.noteForMining = null;
+            $scope.noteForTransaction = null;
+            $scope.noteForStart = null;
+            $scope.block = null;
+
+            $scope.mine = function () {
+                $http.get('/mine')
+                    .then(response => {
+                        $scope.block = response.data.block;
+                        $scope.noteForMining = response.data.note;
+                    });
+            };
+            $scope.transactionBroadcast = function (params) {
+                $http({
+                    url: '/transaction/broadcast',
+                    method: "POST",
+                    data: params
+                }).then(function (response) {
+                    $scope.noteForTransaction = response.data.note;
+                })
+            };
+
+
+
+        });
+
+    </script>
+
+    <style type="text/css">
+        html,
+        body {
+            min-height: 100vh;
+            background-color: grey;
+        }
+
+        .container {
+            padding-top: 50px;
+            padding-bottom: 50px;
+        }
+
+        .Row {
+            display: table;
+            width: 100%;
+            table-layout: fixed;
+            border-spacing: 10px;
+        }
+
+        .Column {
+            display: table-cell;
+            background-color: whitesmoke;
+        }
+
+        #page-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .table-title {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .table {
+            background-color: #ffffff;
+            box-shadow: 2px 2px 15px -3px rgba(0, 0, 0, 0.75);
+        }
+
+        .margin-auto {
+            margin: auto;
+            display: block;
+        }
+
+        .btn-search {
+            margin-bottom: 50px;
+        }
+
+        .bold {
+            font-weight: 700;
+        }
+
+        .no-data-text {
+            color: red;
+            text-align: center;
+        }
+
+        .data-text {
+            color: green;
+            text-align: center;
+        }
+    </style>
+
+</body>
+
+</html>
